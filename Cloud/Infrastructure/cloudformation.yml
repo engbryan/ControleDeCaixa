@@ -1,0 +1,542 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: EntryControl - Complete Infrastructure Setup
+
+Parameters:
+  LambdaArtifactsBucketName:
+    Type: String
+    Description: "Nome do bucket S3 para armazenar os artefatos das Lambdas"
+
+Resources:
+
+  # Cognito User Pool
+  EntryControlUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: EntryControlUserPool
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 6
+          RequireUppercase: false
+          RequireLowercase: false
+          RequireNumbers: false
+          RequireSymbols: false
+      AutoVerifiedAttributes:
+        - email
+
+  # Cognito User Pool Client
+  EntryControlUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: EntryControlClient
+      UserPoolId: !Ref EntryControlUserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ADMIN_NO_SRP_AUTH
+        - USER_PASSWORD_AUTH
+
+  # Cognito Identity Pool
+  EntryControlIdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      IdentityPoolName: EntryControlIdentityPool
+      AllowUnauthenticatedIdentities: false
+      CognitoIdentityProviders:
+        - ClientId: !Ref EntryControlUserPoolClient
+          ProviderName: !Sub cognito-idp.${AWS::Region}.amazonaws.com/${EntryControlUserPool}
+
+  # IAM Role for Cashier (CashierUser)
+  CashierRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: entrycontrol-cashier-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                cognito-identity.amazonaws.com:aud: !Ref EntryControlIdentityPool
+              "ForAnyValue:StringLike":
+                cognito-identity.amazonaws.com:amr: "authenticated"
+      Policies:
+        - PolicyName: entrycontrol-cashier-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource:
+                  - !Ref CommitEntryTopic
+
+  # IAM Role for Manager (ManagerUser)
+  ManagerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: entrycontrol-manager-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                cognito-identity.amazonaws.com:aud: !Ref EntryControlIdentityPool
+              "ForAnyValue:StringLike":
+                cognito-identity.amazonaws.com:amr: "authenticated"
+      Policies:
+        - PolicyName: entrycontrol-manager-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - execute-api:Invoke
+                Resource:
+                  - !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*/GET/reports
+
+  # Cognito User Pool Users
+  CashierUser:
+    Type: AWS::Cognito::UserPoolUser
+    Properties:
+      UserPoolId: !Ref EntryControlUserPool
+      Username: cashier
+      UserAttributes:
+        - Name: email
+          Value: cashier@example.com
+        - Name: name
+          Value: User One
+      DesiredDeliveryMediums:
+        - EMAIL
+      MessageAction: SUPPRESS
+
+  ManagerUser:
+    Type: AWS::Cognito::UserPoolUser
+    Properties:
+      UserPoolId: !Ref EntryControlUserPool
+      Username: manager
+      UserAttributes:
+        - Name: email
+          Value: manager@example.com
+        - Name: name
+          Value: User Two
+      DesiredDeliveryMediums:
+        - EMAIL
+      MessageAction: SUPPRESS
+
+  # S3 Bucket for Frontend Hosting
+  EntryControlFrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: entrycontrol-frontend
+      AccessControl: PublicRead  # Define o acesso público para leitura
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+
+  # Política para tornar o bucket S3 público
+  PublicBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref EntryControlFrontendBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: "*"
+            Action: "s3:GetObject"
+            Resource: !Sub "arn:aws:s3:::${EntryControlFrontendBucket}/*"
+
+  # CloudFront Distribution for S3 Bucket
+  EntryControlCloudFront:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !GetAtt EntryControlFrontendBucket.DomainName
+            Id: S3-Origin
+            S3OriginConfig: {}
+        Enabled: true
+        DefaultCacheBehavior:
+          TargetOriginId: S3-Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: 
+            - GET
+            - HEAD
+          CachedMethods: 
+            - GET
+            - HEAD
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+        DefaultRootObject: index.html
+
+  # Lambda Function: RegisterMovementLambda
+  RegisterMovementLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: entrycontrol-register-movement-lambda
+      Handler: EntryControl.Lambdas.RegisterMovementLambda
+      Runtime: dotnet8
+      Role: !GetAtt LambdaExecutionRole.Arn
+      MemorySize: 128
+      Timeout: 15
+      Environment:
+        Variables:
+          DB_CONNECTION_STRING: !Sub "Data Source=${EntryControlDatabase.Endpoint.Address},1433;database=EntryControlDB;Integrated Security=False;Persist Security Info=True;User ID=admin;Password=12345678;Encrypt=True;Trust Server Certificate=True"
+      Code:
+        S3Bucket: !Ref LambdaArtifactsBucketName
+        S3Key: EntryControl.Lambdas.RegisterMovementLambda.zip
+
+  # Lambda Function: AuthLambda
+  AuthLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: entrycontrol-auth-lambda
+      Handler: EntryControl.Lambdas.AuthLambda
+      Runtime: dotnet8
+      Role: !GetAtt LambdaExecutionRole.Arn
+      MemorySize: 128
+      Timeout: 15
+      Environment:
+        Variables:
+          COGNITO_USER_POOL_ID: !Ref EntryControlUserPool
+          COGNITO_CLIENT_ID: !Ref EntryControlUserPoolClient
+      Code:
+        S3Bucket: !Ref LambdaArtifactsBucketName
+        S3Key: EntryControl.Lambdas.AuthLambda.zip
+
+  # Lambda Function: ReportsLambda
+  ReportsLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: entrycontrol-reports-lambda
+      Handler: EntryControl.Lambdas.ReportsLambda
+      Runtime: dotnet8
+      Role: !GetAtt LambdaExecutionRole.Arn
+      MemorySize: 128
+      Timeout: 15
+      Environment:
+        Variables:
+          DB_CONNECTION_STRING: !Sub "Data Source=${EntryControlDatabase.Endpoint.Address},1433;database=EntryControlDB;Integrated Security=False;Persist Security Info=True;User ID=admin;Password=12345678;Encrypt=True;Trust Server Certificate=True"
+      Code:
+        S3Bucket: !Ref LambdaArtifactsBucketName
+        S3Key: EntryControl.Lambdas.ReportsLambda.zip
+
+  # Lambda Function: DailyClosureLambda
+  DailyClosureLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: entrycontrol-daily-closure-lambda
+      Handler: EntryControl.Lambdas.DailyClosureLambda
+      Runtime: dotnet8
+      Role: !GetAtt LambdaExecutionRole.Arn
+      MemorySize: 128
+      Timeout: 15
+      Environment:
+        Variables:
+          DB_CONNECTION_STRING: !Sub "Data Source=${EntryControlDatabase.Endpoint.Address},1433;database=EntryControlDB;Integrated Security=False;Persist Security Info=True;User ID=admin;Password=12345678;Encrypt=True;Trust Server Certificate=True"
+      Code:
+        S3Bucket: !Ref LambdaArtifactsBucketName
+        S3Key: EntryControl.Lambdas.DailyClosureLambda.zip
+
+  # Lambda Function: ScheduledTriggerLambda (for triggering DailyClosureLambda at 23:00)
+  ScheduledTriggerLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: entrycontrol-scheduled-trigger-lambda
+      Handler: EntryControl.Lambdas.ScheduledTriggerLambda
+      Runtime: dotnet8
+      Role: !GetAtt LambdaExecutionRole.Arn
+      MemorySize: 128
+      Timeout: 15
+      Code:
+        S3Bucket: !Ref LambdaArtifactsBucketName
+        S3Key: EntryControl.Lambdas.ScheduledTriggerLambda.zip
+
+  # CloudWatch Event Rule for Daily Closure
+  ScheduledTriggerEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: cron(0 23 * * ? *)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt ScheduledTriggerLambda.Arn
+          Id: "ScheduledTriggerTarget"
+    DependsOn: ScheduledTriggerLambda
+
+  # SNS Topic: CommitEntry
+  CommitEntryTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: commit-entry-topic
+
+  # SQS Queue: ReceivedEntries
+  ReceivedEntriesQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: received-entries-queue
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt ReceivedEntriesDLQ.Arn
+        maxReceiveCount: 5
+
+  # Dead Letter Queue for ReceivedEntries
+  ReceivedEntriesDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: received-entries-dlq
+
+  # SNS Subscription to SQS: CommitEntry -> ReceivedEntries
+  CommitEntrySubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref CommitEntryTopic
+      Protocol: sqs
+      Endpoint: !GetAtt ReceivedEntriesQueue.Arn
+
+  # Lambda Function: RegisterMovementLambda triggered by ReceivedEntries
+  RegisterMovementLambdaEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !GetAtt ReceivedEntriesQueue.Arn
+      FunctionName: !GetAtt RegisterMovementLambda.Arn
+      Enabled: true
+      BatchSize: 10
+
+  # SNS Topic: GenerateReport
+  GenerateReportTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: generate-report-topic
+
+  # SQS Queue: ReportsOrdered
+  ReportsOrderedQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: reports-ordered-queue
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt ReportsOrderedDLQ.Arn
+        maxReceiveCount: 5
+
+  # Dead Letter Queue for ReportsOrdered
+  ReportsOrderedDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: reports-ordered-dlq
+
+  # SNS Subscription to SQS: GenerateReport -> ReportsOrdered
+  GenerateReportSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref GenerateReportTopic
+      Protocol: sqs
+      Endpoint: !GetAtt ReportsOrderedQueue.Arn
+
+  # Lambda Function: DailyClosureLambda triggered by ReportsOrdered
+  DailyClosureLambdaEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !GetAtt ReportsOrderedQueue.Arn
+      FunctionName: !GetAtt DailyClosureLambda.Arn
+      Enabled: true
+      BatchSize: 10
+
+  # SNS Topic: HealthCheck
+  HealthCheckTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: healthcheck-topic
+
+  # SQS Queue Policy allowing SNS to send messages to all queues
+  SQSQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref ReceivedEntriesQueue
+        - !Ref ReportsOrderedQueue
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: sns.amazonaws.com
+            Action: sqs:SendMessage
+            Resource: 
+              - !GetAtt ReceivedEntriesQueue.Arn
+              - !GetAtt ReportsOrderedQueue.Arn
+
+  # API Gateway
+  EntryControlApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: EntryControlAPI
+      Description: API Gateway for EntryControl
+  
+  # API Gateway Resource for Auth
+  AuthResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref EntryControlApi
+      ParentId: !GetAtt EntryControlApi.RootResourceId
+      PathPart: auth
+
+  # API Gateway Method for Auth (Public)
+  AuthMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE  # Public access
+      HttpMethod: POST
+      ResourceId: !Ref AuthResource
+      RestApiId: !Ref EntryControlApi
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthLambda.Arn}/invocations
+      RequestParameters:
+        method.request.header.Authorization: false
+    DependsOn: AuthLambda
+
+  # API Gateway Resource
+  ReportsResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref EntryControlApi
+      ParentId: !GetAtt EntryControlApi.RootResourceId
+      PathPart: reports
+
+  # API Gateway Method for Reports
+  ReportsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref CognitoAuthorizer
+      HttpMethod: GET
+      ResourceId: !Ref ReportsResource
+      RestApiId: !Ref EntryControlApi
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ReportsLambda.Arn}/invocations
+      RequestParameters:
+        method.request.header.Authorization: false
+    DependsOn: [ReportsLambda, CognitoAuthorizer]
+
+  # Cognito Authorizer for API Gateway
+  CognitoAuthorizer:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      Name: CognitoAuthorizer
+      Type: COGNITO_USER_POOLS
+      IdentitySource: method.request.header.Authorization
+      RestApiId: !Ref EntryControlApi
+      ProviderARNs:
+        - !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${EntryControlUserPool}
+
+  # API Gateway Deployment
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId: !Ref EntryControlApi
+    DependsOn: [ReportsMethod, AuthMethod]
+
+  # IAM Role for Lambda Execution
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: entrycontrol-lambda-execution-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: entrycontrol-lambda-execution-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - sns:Publish
+                  - sqs:SendMessage
+                  - rds:DescribeDBInstances
+                  - rds:DescribeDBClusters
+                  - rds-db:connect
+                  - s3:GetObject
+                  - s3:PutObject
+                  - secretsmanager:GetSecretValue
+                  - sqs:ReceiveMessage
+                  - sqs:GetQueueAttributes
+                  - sqs:DeleteMessage
+                  - sqs:ChangeMessageVisibility
+                  - sqs:ListQueues
+                Resource: "*"
+
+  # RDS Database (SQL Server)
+  EntryControlDatabase:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: sqlserver-ex
+      DBInstanceClass: db.t3.micro
+      MasterUsername: admin
+      MasterUserPassword: "12345678"
+      LicenseModel: "license-included"
+      AllocatedStorage: 50
+      VPCSecurityGroups:
+        - !Ref VpcSecurityGroup
+
+  # Security Group for RDS
+  VpcSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow SQL Server Access
+      VpcId: vpc-011ec9286ecb454c7
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 1433
+          ToPort: 1433
+          CidrIp: 0.0.0.0/0
+
+Outputs:
+  UserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref EntryControlUserPool
+
+  UserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref EntryControlUserPoolClient
+
+  FrontendBucket:
+    Description: S3 Bucket URL for Frontend
+    Value: !GetAtt EntryControlFrontendBucket.WebsiteURL
+
+  CloudFrontURL:
+    Description: CloudFront Distribution URL
+    Value: !GetAtt EntryControlCloudFront.DomainName
+
+  ApiGatewayUrl:
+    Description: API Gateway URL
+    Value: !Sub "https://${EntryControlApi}.execute-api.${AWS::Region}.amazonaws.com/prod/"
+
+  CommitEntryTopicArn:
+    Description: ARN of the CommitEntry SNS Topic
+    Value: !Ref CommitEntryTopic
+
+  GenerateReportTopicArn:
+    Description: ARN of the GenerateReport SNS Topic
+    Value: !Ref GenerateReportTopic

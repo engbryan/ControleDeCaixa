@@ -1,0 +1,21 @@
+
+{
+    "region" : "us-east-1",
+    "profile" : "dev",
+    "configuration" : "Release",
+    "framework"     : "net8.0",
+    "function-name" : "entrycontrol-daily-closure-lambda",
+    "function-description" : "",
+    "package-type"         : "Zip",
+    "function-handler"     : "EntryControl.Lambdas.DailyClosureLambda",
+    "function-memory-size" : 128,
+    "function-timeout"     : 15,
+    "function-runtime"     : "dotnet8",
+    "function-architecture" : "x86_64",
+    "tracing-mode"          : "PassThrough",
+    "environment-variables" : "\"DB_CONNECTION_STRING\"=\"Data Source=entrycontrol-stack-entrycontroldatabase-5wy5xbwkkrmk.cp06eyy2urpz.us-east-1.rds.amazonaws.com,1433;database=EntryControlDB;Integrated Security=False;Persist Security Info=True;User ID=admin;Password=12345678;Encrypt=True;Trust Server Certificate=True\"",
+    "image-tag"             : "",
+    "function-role"         : "arn:aws:iam::248428763777:role/entrycontrol-lambda-execution-role",
+    "function-subnets"      : "",
+    "function-security-groups" : ""
+}

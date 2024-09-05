@@ -1,0 +1,86 @@
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: EntryControl Master Template
+
+Resources:
+  VPCStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/entrycontrol-templates/VPC.yaml
+
+  DatabaseStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/entrycontrol-templates/Database.yaml
+
+  S3BucketStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/entrycontrol-templates/S3Bucket.yaml
+
+  CloudFrontStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/entrycontrol-templates/CloudFront.yaml
+
+  ApiGatewayStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/entrycontrol-templates/ApiGateway.yaml
+
+  CognitoStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/entrycontrol-templates/Cognito.yaml
+
+  SnsAndSqsStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/entrycontrol-templates/SnsAndSqs.yaml
+
+  AuthServiceStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/entrycontrol-templates/AuthService/AuthLambdaFunction.yaml
+
+  SaveDataServiceStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/entrycontrol-templates/SaveDataService/SaveDataLambdaFunction.yaml
+
+  ReportServiceStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/entrycontrol-templates/ReportService/ReportLambdaFunction.yaml
+
+Outputs:
+  VPCStackOutput:
+    Description: Outputs from the VPC Stack
+    Value: !GetAtt VPCStack.Outputs
+  DatabaseStackOutput:
+    Description: Outputs from the Database Stack
+    Value: !GetAtt DatabaseStack.Outputs
+  S3BucketStackOutput:
+    Description: Outputs from the S3 Bucket Stack
+    Value: !GetAtt S3BucketStack.Outputs
+  CloudFrontStackOutput:
+    Description: Outputs from the CloudFront Stack
+    Value: !GetAtt CloudFrontStack.Outputs
+  ApiGatewayStackOutput:
+    Description: Outputs from the API Gateway Stack
+    Value: !GetAtt ApiGatewayStack.Outputs
+  CognitoStackOutput:
+    Description: Outputs from the Cognito Stack
+    Value: !GetAtt CognitoStack.Outputs
+  SnsAndSqsStackOutput:
+    Description: Outputs from the SNS and SQS Stack
+    Value: !GetAtt SnsAndSqsStack.Outputs
+  AuthServiceStackOutput:
+    Description: Outputs from the Auth Service Stack
+    Value: !GetAtt AuthServiceStack.Outputs
+  SaveDataServiceStackOutput:
+    Description: Outputs from the Save Data Service Stack
+    Value: !GetAtt SaveDataServiceStack.Outputs
+  ReportServiceStackOutput:
+    Description: Outputs from the Report Service Stack
+    Value: !GetAtt ReportServiceStack.Outputs

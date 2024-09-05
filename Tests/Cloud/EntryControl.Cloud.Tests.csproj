@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
+    <PackageReference Include="Moq" Version="4.16.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Cloud\Data\EntryControl.Data.csproj" />
+    <ProjectReference Include="..\..\Cloud\Services\AuthService\EntryControl.Lambdas.AuthLambda.csproj" />
+    <ProjectReference Include="..\..\Cloud\Services\RegisterMovementLambda\EntryControl.Lambdas.RegisterMovementLambda.csproj" />
+    <ProjectReference Include="..\..\Cloud\Services\ReportsLambda\EntryControl.Lambdas.ReportsLambda.csproj" />
+    <ProjectReference Include="..\..\Cloud\Services\SaveDataService\EntryControl.Lambdas.DailyClosureLambda.csproj" />
+    <ProjectReference Include="..\..\Cloud\Services\ScheduledTriggerLambda\EntryControl.Lambdas.ScheduledTriggerLambda.csproj" />
+    <ProjectReference Include="..\..\Core\EntryControl.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Mocks\TestFunctionHandler_ValidMessage_ShouldProcessDailyClosure.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Mocks\TestFunctionHandler_ValidMessage_ShouldRegisterMovement.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

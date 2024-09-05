@@ -1,0 +1,21 @@
+
+{
+    "region" : "us-east-1",
+    "profile" : "dev",
+    "configuration" : "Debug",
+    "framework"     : "net8.0",
+    "function-name" : "entrycontrol-authlambda",
+    "function-description" : "",
+    "package-type"         : "Zip",
+    "function-handler"     : "EntryControl.Lambdas.AuthLambda",
+    "function-memory-size" : 256,
+    "function-role"        : "arn:aws:iam::248428763777:role/entrycontrol-lambda-execution-role",
+    "function-timeout"     : 10,
+    "function-runtime"     : "dotnet8",
+    "function-architecture" : "x86_64",
+    "function-subnets"      : "",
+    "function-security-groups" : "",
+    "tracing-mode"             : "PassThrough",
+    "environment-variables"    : "\"COGNITO_CLIENT_ID\"=\"qa00v9u2j3af7lgtk6siku91e\";\"COGNITO_USER_POOL_ID\"=\"us-east-1_U19RVhgkT\"",
+    "image-tag"                : ""
+}

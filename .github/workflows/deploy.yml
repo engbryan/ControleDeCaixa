@@ -1,0 +1,112 @@
+name: Deploy EntryControl Infrastructure
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Install dependencies
+      run: dotnet restore
+
+    - name: Find and Build All Lambdas
+      run: |
+        $projects = Get-ChildItem -Recurse -Filter *.csproj | Where-Object { $_.DirectoryName -like '*\Cloud\Services\*' }
+        foreach ($proj in $projects) {
+            $projName = Split-Path -Leaf $proj.PSPath
+            $outputDir = "$($proj.Directory.Parent.FullName)\artifacts\$($projName.Replace('.csproj', ''))"
+            dotnet publish $proj.FullName -c Release -o $outputDir
+        }
+
+    - name: Zip Lambda Artifacts
+      run: |
+        $artifacts = Get-ChildItem -Directory -Path ./Cloud/Services/artifacts/*
+        foreach ($artifact in $artifacts) {
+            Compress-Archive -Path "$($artifact.FullName)/*" -DestinationPath "$($artifact.FullName).zip"
+        }
+
+    - name: Upload Lambda Artifacts to S3
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: us-east-1
+        S3_BUCKET_NAME: entrycontrol-lambda-artifacts
+      run: |
+        $zips = Get-ChildItem -Filter *.zip -Recurse
+        foreach ($zip in $zips) {
+            echo "Uploading $($zip.FullName) to s3://${{ env.S3_BUCKET_NAME }}/$($zip.Name)"
+            aws s3 cp "$($zip.FullName)" "s3://${{ env.S3_BUCKET_NAME }}/$($zip.Name)" `
+             --debug `
+                2>&1
+        }
+
+    - name: Deploy CloudFormation Stack
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: us-east-1
+        S3_BUCKET_NAME: entrycontrol-lambda-artifacts
+      run: |
+        aws cloudformation deploy `
+          --template-file ./Cloud/Infrastructure/cloudformation.yml `
+          --stack-name entrycontrol-stack `
+          --capabilities CAPABILITY_NAMED_IAM `
+          --parameter-overrides LambdaArtifactsBucketName=${{ env.S3_BUCKET_NAME }} `
+          --no-fail-on-empty-changeset `
+          --debug `
+             2>&1
+
+    - name: Get CloudFormation Outputs
+      id: get_outputs
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: us-east-1
+      run: |
+        aws cloudformation describe-stacks --stack-name entrycontrol-stack --query "Stacks[0].Outputs" > outputs.json
+        Get-Content outputs.json
+      continue-on-error: false
+      
+    # - name: Parse S3 Bucket Name from Outputs
+    #   id: parse_bucket_name
+    #   run: |
+    #     Write-Host "Parsing S3 Bucket Name from CloudFormation outputs..."
+    #     $bucket_name = (Get-Content outputs.json | ConvertFrom-Json) | Where-Object { $_.OutputKey -eq "FrontendBucket" } | Select-Object -ExpandProperty OutputValue
+    #     Write-Host "Frontend bucket name: $bucket_name"
+    #     echo "::set-output name=FRONTEND_BUCKET_NAME::$bucket_name"
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+
+    - name: Install Vue.js Dependencies
+      run: |
+        cd ./front/entrycontrol
+        npm install
+
+    - name: Build Vue.js Application
+      run: |
+        cd ./front/entrycontrol
+        npm run build
+
+    - name: Upload Vue.js Build to S3
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: us-east-1
+        FRONTEND_BUCKET_NAME: entrycontrol-frontend
+      run: |
+        aws s3 sync ./front/entrycontrol/dist/ s3://${{ env.FRONTEND_BUCKET_NAME }}/ --delete
+
+

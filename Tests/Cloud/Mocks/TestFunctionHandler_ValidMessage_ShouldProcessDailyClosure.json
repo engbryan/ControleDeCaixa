@@ -1,0 +1,20 @@
+{
+  "Records": [
+    {
+      "messageId": "77643206-64b9-4410-aef0-4543ed3d381e",
+      "receiptHandle": "AQEBwTfZOJVw7N7PHK0aginpAWGSaDKkEOjf1TPXl5qw61QrOSExWDMuE58hTi0GY+z7gLdZ61RjPkl5h05oK3Begvzr47BJbJKTxOsF9KVTZb58tTvIbqF4FRsov3M45REE7bwedudtL42mQjF8OHbVhxqtTCzxcAhVlmpgj5gUsvl26HNiqwV8CLdMm0GZ9hT67wXRvdgLqT5UqsPXGVdyojfeRYdrhNb0Rg2k9jvg/8IEoltDwyhbmWdb28XpKB/aTx9LA9LWcgVPVxFLcS49ieYR0hxXQgpBCRGAFlYBPUT/GUx4288PEhWVetyoWNGRlYki8BlzexNhmTVUkjIchpvn4hxVisR7qwz0D5Att1vY4ZNSScf+muKVvQ4rhZCh+3nEjuK4L2m+yQN6FEXPEQ==",
+      "body": "{\n  \"Type\" : \"Notification\",\n  \"MessageId\" : \"609b6929-ead6-5008-a41e-367b950cecca\",\n  \"TopicArn\" : \"arn:aws:sns:us-east-1:248428763777:generate-report-topic\",\n  \"Message\" : \"{\\\"AskedDate\\\": \\\"2024-09-04T15:20:06.437Z\\\"}\",\n  \"Timestamp\" : \"2024-09-04T15:32:42.820Z\",\n  \"SignatureVersion\" : \"1\",\n  \"Signature\" : \"XXPkFxdpk3Qu50XTF6cHPi0DSDj7rcVdgnzIxE3bOLdvWKAo7q+aoLUkLDVXQBj9xQDenRCfDhIUb3KcnT2MZHpBwTKmQeRrScf5tC2c/wL6MRf2wEOlPNKeJ5a6VaKaDNqWbDMTbx86S3/TWdH4cP49bi15u0ME/AaCUivNt/wwJiJoIT56aQ4HnnPd78E9ic+nFzT2+aNV1e/jutunUniNmdZVvwvGjeiX6JI364gnHRrogJ9/0HDaoNfT+QkSIutBDdDPz8fv+kSbDaFXq7WfRz6nGuCWrCEM1vnmtsOOqPS2ABndbh4kt8M8LrwPW79OLRMmyZF6pY2vFImg3g==\",\n  \"SigningCertURL\" : \"https://sns.us-east-1.amazonaws.com/SimpleNotificationService-60eadc530605d63b8e62a523676ef735.pem\",\n  \"UnsubscribeURL\" : \"https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:248428763777:generate-report-topic:f0025152-a250-4f53-a66c-0a484bd57946\",\n  \"MessageAttributes\" : {\n    \"MessageType\" : {\"Type\":\"String\",\"Value\":\"EntryControl.Core.Entities.DayClosure\"}\n  }\n}",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1725463962850",
+        "SenderId": "AIDAIT2UOQQY3AUEKVGXU",
+        "ApproximateFirstReceiveTimestamp": "1725463962851"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "c41bc537df8ae3f2a719188596c78b00",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:us-east-1:248428763777:reports-ordered-queue",
+      "awsRegion": "us-east-1"
+    }
+  ]
+}

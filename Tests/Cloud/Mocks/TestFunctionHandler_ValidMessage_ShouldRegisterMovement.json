@@ -1,0 +1,20 @@
+{
+  "Records": [
+    {
+      "messageId": "7fc04846-7408-4801-b1a9-b4b1d9ad5eb4",
+      "receiptHandle": "AQEB1SVTDHtmiCOB+8p6CUF2QTjZ/xSHaQEZTxjt3x67jGYxyc1LtCfX6KO4QObcYaQu3WcIMbBVT3unt5Cse0fM/igutp/Y7zyc6iQRDfsUB0SAyuIaqB9nw+mrn+Yfg/oZ8uXCoPpe39eZnBocRtIXGkl5RL8dVbIvEklSPtOBMN1+bqk2R/iqjE81lpgZQ94jEkTj3xs6I2/k5en8GVv1hlSBjawJ7uOn6ipE3r2Wf7ohMBESTfzw9AjuG/K6JQDsFernxoKpqjPBTkSN94Mk6aLReMhSSjhawopeVm6KmHTGa5XRp1gJ12LqxokGuDJJettYaqW2Uz5Zch9uviT8dq569dqhmB390lIQMrILOSpxNwYFp2FgD9Ef9QGIFtFBmW7wNNQ8vY02ehdV1DdWYA==",
+      "body": "{\n  \"Type\" : \"Notification\",\n  \"MessageId\" : \"c60c5e34-32b7-5c37-b8f8-016668bf29b1\",\n  \"TopicArn\" : \"arn:aws:sns:us-east-1:248428763777:commit-entry-topic\",\n  \"Message\" : \"{\\\"Content\\\":{\\\"UserId\\\":\\\"DESKTOP-I0H5NG0\\\\\\\\Nuno\\\",\\\"EntryId\\\":8,\\\"Type\\\":\\\"Debit\\\",\\\"Amount\\\":213,\\\"Description\\\":\\\"123\\\",\\\"EntryDate\\\":\\\"2024-09-04T09:51:20.2116803-03:00\\\",\\\"Synchronized\\\":false},\\\"MessageType\\\":\\\"EventMessage\\\\u00601\\\",\\\"Timestamp\\\":\\\"2024-09-04T12:51:20.3496779Z\\\"}\",\n  \"Timestamp\" : \"2024-09-04T12:51:20.115Z\",\n  \"SignatureVersion\" : \"1\",\n  \"Signature\" : \"fBPbLRMqeyFXf1kPOGnLU8nzfZ6h/ESf5jx0foK0G1syKjpc/Fwybhm8hgRTEN8MmBDrJThW+mfdX4/haeIeAZ+xgSNk71vO7GAi6GTZ37ZDqXGcZ9icpkOymSURhXUTJ12575+ZXlzeIYL++Kadwc/BrrXjIE3b+Wl+dhDE9Xf0YFlUmfDffeRwkMjtbj4+BUui4n/mse+5W3KsA1Me1DhBVjFbCwjFeYeJbG9HEDaCUe3az8hbNTBj6GjnrpSxCQa1mxKACh2tkOUWjEM2+feelmfIuF3Ymvgffq7oc0lrHR1uDeCRYxETmWRPmhL3BQkOkWmfQKuAgcIVRUyvZw==\",\n  \"SigningCertURL\" : \"https://sns.us-east-1.amazonaws.com/SimpleNotificationService-60eadc530605d63b8e62a523676ef735.pem\",\n  \"UnsubscribeURL\" : \"https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:248428763777:commit-entry-topic:68380776-aa7d-4e7c-ae65-441d9607f955\",\n  \"MessageAttributes\" : {\n    \"MessageType\" : {\"Type\":\"String\",\"Value\":\"EntryControl.Core.Messages.EventMessage`1[[EntryControl.Core.Entities.Entry, EntryControl.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]\"}\n  }\n}",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1725454280151",
+        "SenderId": "AIDAIT2UOQQY3AUEKVGXU",
+        "ApproximateFirstReceiveTimestamp": "1725454280160"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "1fde5d551aba8111c077152ca51e8b77",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:us-east-1:248428763777:received-entries-queue",
+      "awsRegion": "us-east-1"
+    }
+  ]
+}
