@@ -101,8 +101,6 @@ Visão:
 - Essa Lambda obtém os lançamentos desta data, faz o somatório de débitos, somatório de créditos e subtrai o total de débitos do total de créditos, gerando o balanço do dia, que é então armazenado na tabela "dailyreports" do banco SQL Server no AWS.
 - O SQL do RDS possui failover e mirroring para garantir alta disponibilidade
 
-![image](https://github.com/user-attachments/assets/d3f385a0-5fd8-47ac-ba7b-dfb0cbd848a4)
-
 ![image](https://github.com/user-attachments/assets/c22e1153-b8b1-454d-a11b-3ceaddc3e218)
 
 ### 4. Frontend (Vue)
@@ -114,6 +112,8 @@ Visão:
 - Caso seu usuário tenha uma senha temporária, ele será solicitado a trocar a senha. *(Este passo foi omitido e a senha será reenviada como senha definitiva durante o login).*
 - O usuário autenticado solicita, via API Gateway, a Lambda `listreports` para obter a lista de relatórios.
 - O API Gateway enforça a autorização desta URL `/reports` para apenas a role manager, utilizando um custom authorizer para o Cognito.
+- 
+![image](https://github.com/user-attachments/assets/d3f385a0-5fd8-47ac-ba7b-dfb0cbd848a4)
 
 ![image](https://github.com/user-attachments/assets/e92969da-37b8-494c-9e3a-8b0889e759c2)
 
