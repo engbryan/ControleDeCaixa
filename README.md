@@ -115,9 +115,9 @@ Visão:
 - 
 ![image](https://github.com/user-attachments/assets/d3f385a0-5fd8-47ac-ba7b-dfb0cbd848a4)
 
-![image](https://github.com/user-attachments/assets/e92969da-37b8-494c-9e3a-8b0889e759c2)
-
 ![image](https://github.com/user-attachments/assets/c1a0a63c-7110-4600-bea1-48d12582efac)
+
+![image](https://github.com/user-attachments/assets/e92969da-37b8-494c-9e3a-8b0889e759c2)
 
 ### 5. Escalabilidade
 - A arquitetura suporta escalabilidade horizontal, com recursos automatizados para escalar Lambdas e bancos de dados conforme necessário. O uso de Auto Scaling no RDS e a distribuição de carga entre as filas SQS garante que o sistema possa atender a picos de demanda sem degradação significativa de performance.
