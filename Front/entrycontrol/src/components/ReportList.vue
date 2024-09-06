@@ -18,7 +18,7 @@
                 Credits: {{ report.TotalCredits }} | Debits: {{ report.TotalDebits }}
               </v-card-subtitle>
               <v-card-text>
-                <v-chip :color="report.balance >= 0 ? 'green lighten-1' : 'red lighten-1'"
+                <v-chip :color="report.Balance >= 0 ? 'green lighten-1' : 'red lighten-1'"
                         text-color="white"
                         class="ma-2">
                   Balance: {{ report.Balance }}
