@@ -1,3 +1,24 @@
+# Update 19/09/2024
+A organização arquitetural do código da solução foi aprimorada em relação aos nomes de pastas, arquivos físicos, e desenho arquitetural.
+
+Nesta etapa, algumas camadas foram separadas, separando fatidicamente o aplicativo POS da solução Cloud. Estes dois, agora, obedecem à um contrato.
+
+## Diagrama de dependências
+![image](https://github.com/user-attachments/assets/71799c07-24f6-4a15-be6e-0581d3585b57)
+
+## Qualidade
+![image](https://github.com/user-attachments/assets/3651108c-eaa1-4760-b20f-cd53a6aeea07)
+(algumas issues não foram atendidas por questões de brevidade)
+
+![image](https://github.com/user-attachments/assets/b0448dec-dd1f-4952-9495-8402abfe2f32)
+
+## File System
+![image](https://github.com/user-attachments/assets/e1cb09f2-315b-4bba-baa0-37dd39ac2b6e)
+
+## Solução
+![image](https://github.com/user-attachments/assets/0b85b069-430d-4b65-a01f-13665b4d7b96)
+
+
 # Solução de Controle de Caixa
 
 ## Overview
