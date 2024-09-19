@@ -1,7 +1,7 @@
-using EntryControl.Core.Entities;
-using EntryControl.Providers;
-using EntryControl.Repositories;
-using EntryControl.Services.Impl;
+using EntryControl.POS.Core.Interfaces.Services;
+using EntryControl.POS.Data.Repositories;
+using EntryControl.POS.Domain.Entities;
+using EntryControl.POS.Services.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
@@ -20,7 +20,7 @@ namespace EntryControl.Tests.Services
             // Arrange
             var repositoryMock = new Mock<IEntryRepository>();
             var loggerMock = new Mock<ILogger<EntryService>>();
-            var userProviderMock = new Mock<IUserProvider>();
+            var userProviderMock = new Mock<IUserService>();
             var service = new EntryService(repositoryMock.Object, userProviderMock.Object, loggerMock.Object);
             var type = "Débito";
             var ammount = 100m;
@@ -33,7 +33,7 @@ namespace EntryControl.Tests.Services
             service.Add(type, ammount, description);
 
             // Assert
-            repositoryMock.Verify(r => r.Add(It.Is<Entry>(l =>
+            repositoryMock.Verify(r => r.Add(It.Is<POSEntry>(l =>
                 l.Type == type &&
                 l.Amount == ammount &&
                 l.Description == description &&
@@ -49,12 +49,12 @@ namespace EntryControl.Tests.Services
         {
             // Arrange
             var repositoryMock = new Mock<IEntryRepository>();
-            repositoryMock.Setup(r => r.GetSynchronized()).Returns(new List<Entry>
+            repositoryMock.Setup(r => r.GetSynchronized()).Returns(new List<POSEntry>
             {
-                new Entry { ClientId = 1, Synchronized = true },
-                new Entry { ClientId = 2, Synchronized = true }
+                new POSEntry { ClientId = 1, Synchronized = true },
+                new POSEntry { ClientId = 2, Synchronized = true }
             }.AsQueryable());
-            var userProviderMock = new Mock<IUserProvider>();
+            var userProviderMock = new Mock<IUserService>();
 
             var service = new EntryService(repositoryMock.Object, userProviderMock.Object, new Mock<ILogger<EntryService>>().Object);
 

@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Client\EntryControl.POS.csproj" />
+    <ProjectReference Include="..\..\EntryControl.POS.App\EntryControl.POS.App.csproj" />
   </ItemGroup>
 
 </Project>

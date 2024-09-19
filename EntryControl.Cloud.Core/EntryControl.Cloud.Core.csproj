@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>EntryControl.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.400.13" />
+    <PackageReference Include="AWSSDK.SecretsManager.Caching" Version="1.0.6" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.400.13" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+	  <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EntryControl.Cloud.Domain\EntryControl.Cloud.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -16,13 +16,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Cloud\Data\EntryControl.Data.csproj" />
-    <ProjectReference Include="..\..\Cloud\Services\AuthService\EntryControl.Lambdas.AuthLambda.csproj" />
-    <ProjectReference Include="..\..\Cloud\Services\RegisterMovementLambda\EntryControl.Lambdas.RegisterMovementLambda.csproj" />
-    <ProjectReference Include="..\..\Cloud\Services\ReportsLambda\EntryControl.Lambdas.ReportsLambda.csproj" />
-    <ProjectReference Include="..\..\Cloud\Services\SaveDataService\EntryControl.Lambdas.DailyClosureLambda.csproj" />
-    <ProjectReference Include="..\..\Cloud\Services\ScheduledTriggerLambda\EntryControl.Lambdas.ScheduledTriggerLambda.csproj" />
-    <ProjectReference Include="..\..\Core\EntryControl.Core.csproj" />
+    <ProjectReference Include="..\..\EntryControl.Cloud.Data\EntryControl.Cloud.Data.csproj" />
+    <ProjectReference Include="..\..\Lambdas\EntryControl.Lambdas.AuthLambda\EntryControl.Lambdas.AuthLambda.csproj" />
+    <ProjectReference Include="..\..\Lambdas\EntryControl.Lambdas.RegisterMovementLambda\EntryControl.Lambdas.RegisterMovementLambda.csproj" />
+    <ProjectReference Include="..\..\Lambdas\EntryControl.Lambdas.ReportsLambda\EntryControl.Lambdas.ReportsLambda.csproj" />
+    <ProjectReference Include="..\..\Lambdas\EntryControl.Lambdas.DailyClosureLambda\EntryControl.Lambdas.DailyClosureLambda.csproj" />
+    <ProjectReference Include="..\..\Lambdas\EntryControl.Lambdas.ScheduledTriggerLambda\EntryControl.Lambdas.ScheduledTriggerLambda.csproj" />
+    <ProjectReference Include="..\..\EntryControl.Cloud.Core\EntryControl.Cloud.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

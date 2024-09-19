@@ -1,16 +1,13 @@
-using System;
+using Amazon.Lambda.Core;
+using Amazon.Lambda.SQSEvents;
+using EntryControl.Cloud.Data.Contexts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Amazon.Lambda.Core;
-using Amazon.Lambda.SQSEvents;
-using EntryControl.Data.Contexts;
-using Microsoft.EntityFrameworkCore;
-using Moq;
 using Xunit;
-using EntryControl.Lambdas.DailyClosureLambda;
-using Microsoft.Extensions.DependencyInjection;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace EntryControl.Lambdas.Tests
 {
@@ -28,7 +25,7 @@ namespace EntryControl.Lambdas.Tests
 
             var serviceProvider = services.BuildServiceProvider();
 
-            var lambda = new DailyClosureLambda.DailyClosureLambda(serviceProvider);
+            var lambda = new DailyClosureLambda(serviceProvider);
 
             var jsonPath = Path.Combine(Directory.GetCurrentDirectory(), "mocks", "TestFunctionHandler_ValidMessage_ShouldProcessDailyClosure.json");
             var jsonMessage = await File.ReadAllTextAsync(jsonPath);

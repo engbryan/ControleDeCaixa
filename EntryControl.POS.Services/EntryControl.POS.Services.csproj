@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Amazon.Extensions.CognitoAuthentication" Version="2.5.5" />
+		<PackageReference Include="AWSSDK.CognitoIdentityProvider" Version="3.7.402.10" />
+		<PackageReference Include="AWSSDK.Core" Version="3.7.400.13" />
+		<PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.400.13" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+	</ItemGroup>
+	
+  <ItemGroup>
+    <ProjectReference Include="..\EntryControl.POS.Core\EntryControl.POS.Core.csproj" />
+    <ProjectReference Include="..\EntryControl.POS.Data\EntryControl.POS.Data.csproj" />
+  </ItemGroup>
+
+</Project>

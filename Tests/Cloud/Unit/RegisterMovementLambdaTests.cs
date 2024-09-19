@@ -1,21 +1,13 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.Tracing;
+using Amazon.Lambda.Core;
+using Amazon.Lambda.SQSEvents;
+using EntryControl.Cloud.Data.Contexts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Amazon.Lambda.Core;
-using Amazon.Lambda.SNSEvents;
-using Amazon.Lambda.SQSEvents;
-using Amazon.Runtime.Telemetry;
-using Amazon.Runtime;
-using EntryControl.Core.Entities;
-using EntryControl.Data.Contexts;
-using Microsoft.EntityFrameworkCore;
-using Moq;
 using Xunit;
-using System.IO;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace EntryControl.Lambdas.Tests
 {
